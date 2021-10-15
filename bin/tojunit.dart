@@ -8,16 +8,28 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:intl/intl.dart';
 import 'package:junitreport/junitreport.dart';
+import 'package:string_converter/convert/utf16.dart';
+import 'package:string_converter/converter.dart';
 import 'package:testreport/testreport.dart';
+import 'package:utf/utf.dart';
 
 Future<Null> main(List<String> args) async {
-  var arguments = parseArguments(args);
+  print('test 1 $args');
+  var strs = <String>[];
+  for (var str in args) {
+    var s = UTF16(str, true);
+    str = s.toString();
+    strs.add(StringConverter().toUTF8(s.text));
+  }
+  var arguments = parseArguments(strs);
 
+  print('test 1');
   var lines = LineSplitter().bind(utf8.decoder.bind(arguments.source));
+  print('test 2');
+
   try {
     var report = await createReport(arguments, lines);
-    var xml = JUnitReport(base: arguments.base, package: arguments.package)
-        .toXml(report);
+    var xml = JUnitReport(base: arguments.base, package: arguments.package).toXml(report);
     arguments.target.write(xml);
   } catch (e) {
     stderr.writeln(e.toString());
@@ -44,14 +56,8 @@ if missing, <stdin> will be used""")
     ..addOption('output', abbr: 'o', help: '''
 the path of the to be generated junit xml file.
 if missing, <stdout> will be used''')
-    ..addOption('base',
-        abbr: 'b',
-        help: "the part to strip from the 'path' elements in the source",
-        defaultsTo: '')
-    ..addOption('package',
-        abbr: 'p',
-        help: "the part to prepend to the 'path' elements in the source",
-        defaultsTo: '')
+    ..addOption('base', abbr: 'b', help: "the part to strip from the 'path' elements in the source", defaultsTo: '')
+    ..addOption('package', abbr: 'p', help: "the part to prepend to the 'path' elements in the source", defaultsTo: '')
     ..addOption('timestamp', abbr: 't', help: """
 the timestamp to be used in the report
 - 'now' will use the current date/time
@@ -60,11 +66,7 @@ the timestamp to be used in the report
 - if no value is provided
     - if '--input' is specified the file modification date/time is used
     - otherwise the current date/time is used""")
-    ..addFlag('help',
-        abbr: 'h',
-        help: 'display this help text',
-        negatable: false,
-        defaultsTo: false);
+    ..addFlag('help', abbr: 'h', help: 'display this help text', negatable: false, defaultsTo: false);
 
   try {
     var result = parser.parse(args);
@@ -110,8 +112,7 @@ DateTime _processTimestamp(String timestamp, _Source source) {
   try {
     return format.parseUtc(timestamp);
   } on FormatException {
-    throw FormatException(
-        "'timestamp' should be in the form 'yyyy-MM-ddTHH:mm:ss' UTC");
+    throw FormatException("'timestamp' should be in the form 'yyyy-MM-ddTHH:mm:ss' UTC");
   }
 }
 
