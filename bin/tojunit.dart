@@ -31,7 +31,7 @@ Future<Null> main(List<String> args) async {
 
   try {
     print('started $ds');
-    var report = await createReport(arguments, ds.split('\n'));
+    var report = await createReport(arguments, (await File(fileName).readAsString()).split('\n'));
     print('report created');
     var xml = JUnitReport(base: arguments.base, package: arguments.package).toXml(report);
     print('finished -1');
