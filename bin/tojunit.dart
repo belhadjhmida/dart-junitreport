@@ -12,11 +12,22 @@ import 'package:testreport/testreport.dart';
 import 'package:utf/utf.dart';
 
 Future<Null> main(List<String> args) async {
+  print('preparing');
+
   var fileName = args.firstWhere((element) => element.endsWith('.json'));
+  print('got file name');
+
   var file = await File(fileName).readAsBytes();
+  print('got file bytes');
+
   var data = file.toList();
+  print('got list');
+
   var ds = decodeUtf16(data);
+  print('got utf16');
+
   var arguments = parseArguments(args);
+  print('got args');
 
   try {
     print('started');
