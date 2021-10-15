@@ -19,9 +19,13 @@ Future<Null> main(List<String> args) async {
   var arguments = parseArguments(args);
 
   try {
+    print('started');
     var report = await createReport(arguments, ds.split('\n'));
+    print('report created');
     var xml = JUnitReport(base: arguments.base, package: arguments.package).toXml(report);
+    print('finished -1');
     arguments.target.write(xml);
+    print('finished');
   } catch (e) {
     stderr.writeln(e.toString());
     exit(1);
