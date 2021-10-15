@@ -45,6 +45,7 @@ Future<Null> main(List<String> args) async {
 
 Future<Report> createReport(Arguments arguments, List<String> lines) async {
   var processor = Processor(timestamp: arguments.timestamp);
+  print('Lines are $lines');
   for (var line in lines) {
     if (!line.startsWith('{')) {
       continue;
