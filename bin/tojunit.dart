@@ -8,27 +8,18 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:intl/intl.dart';
 import 'package:junitreport/junitreport.dart';
-import 'package:string_converter/convert/utf16.dart';
-import 'package:string_converter/converter.dart';
 import 'package:testreport/testreport.dart';
 import 'package:utf/utf.dart';
 
 Future<Null> main(List<String> args) async {
-  print('test 1 $args');
-  var strs = <String>[];
-  for (var str in args) {
-    var s = UTF16(str, true);
-    str = s.toString();
-    strs.add(StringConverter().toUTF8(s.text));
-  }
-  var arguments = parseArguments(strs);
-
-  print('test 1');
-  var lines = LineSplitter().bind(utf8.decoder.bind(arguments.source));
-  print('test 2');
+  var fileName = args.firstWhere((element) => element.endsWith('.json'));
+  var file = await File(fileName).readAsBytes();
+  var data = file.toList();
+  var ds = decodeUtf16(data);
+  var arguments = parseArguments(args);
 
   try {
-    var report = await createReport(arguments, lines);
+    var report = await createReport(arguments, ds.split('\n'));
     var xml = JUnitReport(base: arguments.base, package: arguments.package).toXml(report);
     arguments.target.write(xml);
   } catch (e) {
@@ -37,14 +28,15 @@ Future<Null> main(List<String> args) async {
   }
 }
 
-Future<Report> createReport(Arguments arguments, Stream<String> lines) async {
+Future<Report> createReport(Arguments arguments, List<String> lines) async {
   var processor = Processor(timestamp: arguments.timestamp);
-  await for (String line in lines) {
+  for (var line in lines) {
     if (!line.startsWith('{')) {
       continue;
     }
     processor.process(json.decode(line) as Map<String, dynamic>);
   }
+
   return processor.report;
 }
 
@@ -73,7 +65,6 @@ the timestamp to be used in the report
     if (result['help'] as bool) {
       print(parser.usage);
       exit(0);
-      return null; // satisfy code analyzers
     }
 
     var source = _processInput(result['input'] as String);
