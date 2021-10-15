@@ -30,7 +30,7 @@ Future<Null> main(List<String> args) async {
   print('got args');
 
   try {
-    print('started');
+    print('started $ds');
     var report = await createReport(arguments, ds.split('\n'));
     print('report created');
     var xml = JUnitReport(base: arguments.base, package: arguments.package).toXml(report);
