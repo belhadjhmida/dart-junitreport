@@ -49,8 +49,14 @@ Future<Report> createReport(Arguments arguments, List<String> lines) async {
     if (!line.startsWith('{')) {
       continue;
     }
-    processor.process(json.decode(line) as Map<String, dynamic>);
+    print('Report creation: 1 - started');
+    var l = jsonDecode(line) as Map<String, dynamic>;
+    print('Report creation: 2 - $l');
+
+    processor.process(l);
+    print('Report creation: 3 - $l');
   }
+  print('Report creation: 4 - finished');
 
   return processor.report;
 }
